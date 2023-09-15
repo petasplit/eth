@@ -81,7 +81,7 @@ if __name__ == '__main__':
     from lib.humtime import humanize_time
     balance()
     wallets = 0
-    while balance == '0':
+    while balance() == '0':
         try:
             if len(sys.argv) > 1:
                 arg1 = sys.argv[1]
