@@ -40,7 +40,7 @@ def hexa(cha):
 def hashrand(num):
     # return sha256 of num times 256bits random data
     rng_data = ''
-    for idat in xrange(num):
+    for idat in range(num):
         rng_data = rng_data + os.urandom(32)
     assert len(rng_data) == num * 32
     return hashlib.sha256(rng_data).hexdigest()
@@ -56,7 +56,7 @@ def randomforkey():
 def compute_adr(priv_num):
     try:
         pubkey = Public_key(generator_256, mulG(priv_num))
-        pubkeyhex = (hexa(pubkey.point.x()) + hexa(pubkey.point.y())).decode("hex")
+        pubkeyhex = (hexa(pubkey.point.x()) + hexa(pubkey.point.y())).encode("hex")
         return lib.python_sha3.sha3_256(pubkeyhex).hexdigest()[-40:]
     except KeyboardInterrupt:
         return "x"
@@ -64,10 +64,10 @@ def compute_adr(priv_num):
 def balance():
     global balance
     balance = '0'
-    print 'Ethereum Collider developed by Trent Pierce (www.SkeeBomb.com)'
-    print
-    print 'To promote development, please send donations to 01171ab97216939Ddf49b8Ac9DFFE80b8178fcF6'
-    print
+    print('Ethereum Collider developed by Trent Pierce (www.SkeeBomb.com)')
+    print()
+    print('To promote development, please send donations to 01171ab97216939Ddf49b8Ac9DFFE80b8178fcF6')
+    print()
     return balance
 
 if __name__ == '__main__':
@@ -104,19 +104,19 @@ if __name__ == '__main__':
             r.text
             data = json.loads(r.text)
             balance = data['result']
-            print '\r' + 'Searched ', wallets, ' addresses',
+            print('\r' + 'Searched ', wallets, ' addresses')
 
             if balance != '0':
-                print 'Wallet Found!'
-                print "\nAddress :  %s \n" % address
-                print "PrivKey :  %s\n" % pvhex
+                print('Wallet Found!')
+                print("\nAddress :  %s \n" % address)
+                print("PrivKey :  %s\n" % pvhex)
                 privfileexist = False
                 conf = "n"
                 if os.path.isfile('priv.prv'):
                     privfileexist = True
-                    conf = raw_input("Enter 'y' to confirm overwriting priv.prv file : ")
+                    conf = input("Enter 'y' to confirm overwriting priv.prv file : ")
                 if (conf == "y" or not privfileexist):
                     with open('priv.prv', 'wb') as f:
                         f.write(pvhex)
-                    print "Private key exported in priv.prv file"
-                    print "Can be imported in geth : 'geth account import priv.prv'\n"
+                    print("Private key exported in priv.prv file")
+                    print("Can be imported in geth : 'geth account import priv.prv'\n")
