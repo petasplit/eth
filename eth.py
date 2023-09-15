@@ -47,7 +47,7 @@ def hashrand(num):
 
 def randomforkey():
     candint = 0
-    r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141L
+    r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
     while candint < 1 or candint >= r:
         cand = hashrand(1024)
         candint = int(cand, 16)
