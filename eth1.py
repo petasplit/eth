@@ -72,7 +72,7 @@ def search_for_collision(target_address, rainbow_table):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         arg1 = sys.argv[1]
-        assert re.match(r"^[0-9a-fA-F]{1,10}$", arg1) is not None
+        assert re.match(r"^[0-9a-fA-F]{40}$", arg1) is not None
         searchstring = arg1.lower()
         listwide = 4 * os.cpu_count() * 2 ** len(searchstring)
         vanity = True
