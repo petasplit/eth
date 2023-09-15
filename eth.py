@@ -53,7 +53,7 @@ def compute_adr(priv_num):
     except KeyboardInterrupt:
         return "x"
 
-def balance():
+def print_balance():
     global balance
     balance = '0'
     print('Ethereum Collider developed by Trent Pierce (www.SkeeBomb.com)')
@@ -63,9 +63,9 @@ def balance():
     return balance
 
 if __name__ == '__main__':
-    balance()
+    print_balance()
     wallets = 0
-    while balance() == '0':
+    while balance == '0':
         try:
             if len(sys.argv) > 1:
                 arg1 = sys.argv[1]
