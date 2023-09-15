@@ -6,10 +6,6 @@
 #
 # Pure Python address generator with Collision detection
 #
-# Random source for key generation :
-# CryptGenRandom in Windows
-# /dev/urandom   in Unix-like
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, version 3 of the License.
@@ -20,16 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-# Uses python-sha3 from moshekaplan
-#
 # Enter optional argument : a hex string shorter than 11 chars
-#
-from lib.ECDSA_BTC import *
-import lib.python_sha3
-import requests
-import json
-import os
+
+import hashlib
+import re
 import sys
+import os
+import time
 
 def hexa(cha):
     hexas = hex(cha)[2:-1]
@@ -38,12 +31,12 @@ def hexa(cha):
     return hexas
 
 def hashrand(num):
-    # return sha256 of num times 256bits random data
-    rng_data = ''
-    for idat in range(num):
-        rng_data = rng_data + os.urandom(32)
-    assert len(rng_data) == num * 32
-    return hashlib.sha256(rng_data).hexdigest()
+    # Generate a pseudo-random hash based on current time
+    seed = int(time.time())
+    rng_data = hashlib.sha256(str(seed).encode()).hexdigest()
+    for _ in range(num - 1):
+        rng_data = hashlib.sha256(rng_data.encode()).hexdigest()
+    return rng_data
 
 def randomforkey():
     candint = 0
@@ -55,9 +48,8 @@ def randomforkey():
 
 def compute_adr(priv_num):
     try:
-        pubkey = Public_key(generator_256, mulG(priv_num))
-        pubkeyhex = (hexa(pubkey.point.x()) + hexa(pubkey.point.y())).encode("hex")
-        return lib.python_sha3.sha3_256(pubkeyhex).hexdigest()[-40:]
+        pubkeyhex = hexa(priv_num)
+        return hashlib.sha3_256(pubkeyhex.encode()).hexdigest()[-40:]
     except KeyboardInterrupt:
         return "x"
 
@@ -71,27 +63,18 @@ def balance():
     return balance
 
 if __name__ == '__main__':
-    import multiprocessing
-    p = multiprocessing.Pool(int(multiprocessing.cpu_count()))
-    import hashlib
-    import re
-    import sys
-    import time
-    import os.path
-    from lib.humtime import humanize_time
     balance()
     wallets = 0
     while balance() == '0':
         try:
             if len(sys.argv) > 1:
                 arg1 = sys.argv[1]
-                assert re.match(r"^[0-9a-fA-F]{1,10}$", arg1) != None
+                assert re.match(r"^[0-9a-fA-F]{1,10}$", arg1) is not None
                 searchstring = arg1.lower()
-                listwide = 4 * int(multiprocessing.cpu_count()) * 2 ** len(searchstring)
+                listwide = 4 * os.cpu_count() * 2 ** len(searchstring)
                 vanity = True
         except:
             raise ValueError("Error in argument, not a hex string or longer than 10 chars")
-        load_gtable('lib/G_Table')
         privkeynum = randomforkey()
         address = compute_adr(privkeynum)
         foundprivkeynum = privkeynum
@@ -99,11 +82,6 @@ if __name__ == '__main__':
             wallets = wallets + 1
             assert compute_adr(foundprivkeynum) == address
             pvhex = hexa(foundprivkeynum)
-            r = requests.get(
-                'https://api.etherscan.io/api?module=account&action=balance&address=' + address + '&tag=latest&apikey=V7GSGSMWZ2CZH1B6MBXM84SZ1XG4DXDCW9')
-            r.text
-            data = json.loads(r.text)
-            balance = data['result']
             print('\r' + 'Searched ', wallets, ' addresses')
 
             if balance != '0':
@@ -116,7 +94,7 @@ if __name__ == '__main__':
                     privfileexist = True
                     conf = input("Enter 'y' to confirm overwriting priv.prv file : ")
                 if (conf == "y" or not privfileexist):
-                    with open('priv.prv', 'wb') as f:
+                    with open('priv.prv', 'w') as f:
                         f.write(pvhex)
                     print("Private key exported in priv.prv file")
                     print("Can be imported in geth : 'geth account import priv.prv'\n")
