@@ -45,18 +45,28 @@ def get_balance_and_tx_status(address):
             print(f'Error for address {address}: {balance_response["error"]["message"]}')
             return balance, tx_status, tx_status_display
 
-        balance = int(balance_response['result']) / 1e18
+        try:
+            balance = int(balance_response['result']) / 1e18
+        except ValueError:
+            print(f'Error: Invalid balance format for address {address}')
+            return balance, tx_status, tx_status_display
 
     if ENABLE_TRANSACTION_COUNT_SCANNING:
         # Get transaction status
         tx_url = f'https://api.etherscan.io/api?module=account&action=txlist&address={address}&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey={API_KEY}'
         tx_response = requests.get(tx_url).json()
-        
+
         if 'error' in tx_response:
             print(f'Error for address {address}: {tx_response["error"]["message"]}')
             return balance, tx_status, tx_status_display
 
         tx_status = tx_response['status'] == '1'
+
+        # For display, we'll use the message from the API response
+        tx_status_display = tx_response['message']
+
+    return balance, tx_status, tx_status_display
+
 
         # For display, we'll use the message from the API response
         tx_status_display = tx_response['message']
