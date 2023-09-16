@@ -67,13 +67,6 @@ def get_balance_and_tx_status(address):
 
     return balance, tx_status, tx_status_display
 
-
-        # For display, we'll use the message from the API response
-        tx_status_display = tx_response['message']
-
-    return balance, tx_status, tx_status_display
-
-
 def check_address_and_generate_keys():
     address = 'TEST WITH YOUR OWN WALLET ADDRESS'
     balance, tx_status, tx_status_display = get_balance_and_tx_status(address)
